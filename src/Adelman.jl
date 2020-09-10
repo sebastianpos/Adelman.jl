@@ -14,7 +14,7 @@ end # module CAP
 
 using .CAP
 
-using GAP: GapObj, julia_to_gap, gap_to_julia, @gap
+using .CAP.GAP: GapObj, julia_to_gap, gap_to_julia, @gap
 
 import Base: ∘, /, ==
 
