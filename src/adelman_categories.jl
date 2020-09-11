@@ -1,4 +1,4 @@
-new_types_wrap_cat( "Adel", CAP.IsAdelmanCategoryObject, CAP.IsAdelmanCategoryMorphism )
+new_types_wrap_cat( "Adel", CAP.IsAdelmanCategoryObject, CAP.IsAdelmanCategoryMorphism, CAP.IsAdelmanCategory )
 
 ## Convenience constructors
 
@@ -9,39 +9,36 @@ function /(str::AbstractString, A::AbstractAdelCat)
     CAP.IsCapCategoryMorphism( cell ) && return AdelMor( cell )
 end
 
+##
+
 function /(t::Tuple{<:AbstractString,<:AbstractString}, A::AbstractAdelCat)
+    rel = t[1]
+    corel = t[2]
+    
     gA = GapObj( A )
+    qrows = CAP.UnderlyingCategory( gA )
+    global path_algebra = CAP.UnderlyingQuiverAlgebra( qrows )
     
-    rel = Base.getproperty( CAP.UnderlyingCategory( gA ), t[1] )
-    CAP.IsCapCategoryObject( rel ) && ( rel = CAP.IdentityMorphism( rel ) )
+    rel = prepare_relations_str_for_eval( rel )
+    corel = prepare_relations_str_for_eval( corel )
     
-    corel = Base.getproperty( CAP.UnderlyingCategory( gA ), t[2] )
-    CAP.IsCapCategoryObject( corel ) && ( corel = CAP.IdentityMorphism( corel ) )
+    rel = eval( Meta.parse( rel ) )
+    corel = eval( Meta.parse( corel ) )
+    
+    rel = CAP.AsQuiverRowsMorphism( rel, qrows )
+    corel = CAP.AsQuiverRowsMorphism( corel, qrows )
     
     cell = CAP.AdelmanCategoryObject( rel, corel )
     return AdelObj( cell )
 end
-
-global quiver
-global ℚ
-global path_algebra
 
 function AdelmanCategory( quiver_str::AbstractString, relations_str::AbstractString )
     global quiver = CAP.RightQuiver( julia_to_gap( quiver_str ) )
     global ℚ = CAP.HomalgFieldOfRationals()
     global path_algebra = CAP.PathAlgebra( ℚ, quiver )
     
-    ## String manipulation for the relations
-    char_test( x :: AbstractChar ) = !isspace(x) && !(x in ('[',']') )
-    str = relations_str
-    str = filter( x -> char_test( x ), str )
-    str = "," * str
-    ialg = "path_algebra."
-    reg = r"(?<coeff>([\,\+\-])+(\d)*(\*)?)(?<path>[^(\d)\*\-\+])"
-    sstr = SubstitutionString( "\\g<coeff>$(ialg)\\g<path>" )
-    str = replace( str, reg => sstr )
-    str = "[" * str[2:end] * "]"
-    
+    str = prepare_relations_str_for_eval( relations_str )
+    str = "[" * str * "]"
     eval_str = julia_to_gap( eval( Meta.parse( str ) ) )
     quotient_alg = CAP.QuotientOfPathAlgebra( path_algebra, eval_str )
     return AdelCat( CAP.AdelmanCategory( CAP.QuiverRowsDescentToZDefinedByBasisPaths( quotient_alg ) ) )
@@ -61,3 +58,7 @@ function HomGens( a :: AbstractAdelObj, b :: AbstractAdelObj )
     gens = CAP.FREYD_CATEGORIES_GENERATORS_OF_FREYD_OBJECT_OVER_ROWS( CAP.Source( iso_gap ) );
     return [ AdelMor( CAP.HomStructure( GapObj( a ), GapObj( b ), CAP.PreCompose( gens[i], iso_gap ) ) ) for i in 1:CAP.Length( gens ) ]
 end
+
+export UnderlyingCategory
+
+UnderlyingCategory( a::AbstractAdelCat ) = othercattype( CAP.UnderlyingCategory( GapObj(a) ) )

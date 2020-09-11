@@ -52,6 +52,7 @@ Range( a :: AbstractMor ) = objtype(a)(CAP.Range( GapObj( a ) ))
 ## global variable storing pairs [ GAPFilter, corresponding Julia Type ]
 otherobjlist = []
 othermorlist = []
+othercatlist = []
 
 function otherobjtype( x::GapObj )
     
@@ -71,7 +72,16 @@ function othermortype( x::GapObj )
     return Mor( x )
 end
 
-function new_types_wrap_cat( str::AbstractString, gap_filter_obj::GapObj, gap_filter_mor::GapObj )
+function othercattype( x::GapObj )
+    
+    for pair in othercatlist
+        pair[1](x) && return pair[2](x)
+    end
+    
+    return Cat( x )
+end
+
+function new_types_wrap_cat( str::AbstractString, gap_filter_obj::GapObj, gap_filter_mor::GapObj, gap_filter_cat::GapObj )
     new_types_wrap_cat(
         Meta.parse( "Abstract" * str * "Cat" ),
         Meta.parse( "Abstract" * str * "Obj" ),
@@ -80,14 +90,18 @@ function new_types_wrap_cat( str::AbstractString, gap_filter_obj::GapObj, gap_fi
         Meta.parse( str * "Obj" ),
         Meta.parse( str * "Mor" ),
         gap_filter_obj,
-        gap_filter_mor
+        gap_filter_mor,
+        gap_filter_cat
     )
 end
 
-function new_types_wrap_cat( acatsym::Symbol, aobjsym::Symbol, amorsym::Symbol, catsym::Symbol, objsym::Symbol, morsym::Symbol, gap_filter_obj::GapObj, gap_filter_mor::GapObj )
+function new_types_wrap_cat( acatsym::Symbol, aobjsym::Symbol, amorsym::Symbol, catsym::Symbol, objsym::Symbol, morsym::Symbol, gap_filter_obj::GapObj, gap_filter_mor::GapObj, gap_filter_cat::GapObj )
     
     exp =
         quote
+            
+            export $acatsym, $aobjsym, $amorsym, $catsym, $objsym, $morsym
+            
             abstract type $acatsym <: AbstractCat end
             
             abstract type $aobjsym <: AbstractObj end
@@ -127,6 +141,7 @@ function new_types_wrap_cat( acatsym::Symbol, aobjsym::Symbol, amorsym::Symbol, 
             
             push!( otherobjlist, [ $gap_filter_obj, $objsym ] )
             push!( othermorlist, [ $gap_filter_mor, $morsym ] )
+            push!( othercatlist, [ $gap_filter_cat, $catsym ] )
             
         end
     
@@ -441,7 +456,8 @@ conv_with_given = [
     CAPBasicOperationMetaData( :HomomorphismStructureOnMorphisms, [ "morphism", "morphism" ], "other_morphism" ),
     CAPBasicOperationMetaData( :KernelObjectFunctorial, [ "morphism", "morphism", "morphism" ], "morphism" ),
     CAPBasicOperationMetaData( :CokernelObjectFunctorial, [ "morphism", "morphism", "morphism" ], "morphism" ),
-    CAPBasicOperationMetaData( :DirectSumFunctorial, [ "list_of_morphisms" ], "morphism" )
+    CAPBasicOperationMetaData( :DirectSumFunctorial, [ "list_of_morphisms" ], "morphism" ),
+    CAPBasicOperationMetaData( :HomologyObjectFunctorial, [ "morphism", "morphism", "morphism", "morphism", "morphism" ], "morphism" )
 ]
 
 append!( data, conv_with_given ) 

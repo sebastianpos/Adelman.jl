@@ -28,6 +28,24 @@ gap_isobject = @gap IsObject
 GapObj( x :: Integer ) = x
 GapObj( x :: AbstractString ) = x
 
+## String manipulation for the relations
+char_test( x :: AbstractChar ) = !isspace(x) && !(x in ('[',']') )
+
+global quiver
+global ℚ
+global path_algebra
+
+function prepare_relations_str_for_eval( relations_str::AbstractString, ialg::AbstractString="path_algebra" )
+    str = relations_str
+    str = filter( x -> char_test( x ), str )
+    str = "," * str
+    ialg = ialg * "."
+    reg = r"(?<coeff>([\,\+\-])+(\d)*(\*)?)(?<path>[^(\d)\*\-\+])"
+    sstr = SubstitutionString( "\\g<coeff>$(ialg)\\g<path>" )
+    str = replace( str, reg => sstr )
+    str = str[2:end]
+end
+
 include("categories.jl")
 include("freyd_categories.jl")
 include("adelman_categories.jl")
