@@ -474,7 +474,7 @@ end
 
 ## convenience methods
 
-export ⊕, ⋅, ∘, ==
+export ⊕, ⋅, ∘, ==, +, -
 
 ⋅( a::AbstractMor, b::AbstractMor ) = PreCompose( a, b )
 ∘( a::AbstractMor, b::AbstractMor ) = PostCompose( a, b )
@@ -484,6 +484,10 @@ export ⊕, ⋅, ∘, ==
 
 Id( a::AbstractObj ) = IdentityMorphism( a )
 
++( a::AbstractMor, b::AbstractMor ) = AdditionForMorphisms( a, b )
+-( a::AbstractMor, b::AbstractMor ) = SubtractionForMorphisms( a, b )
+-( a::AbstractMor ) = AdditiveInverseForMorphisms( a )
+
 DirectSum( x :: AbstractObj... ) = DirectSum( collect( x ) )
 DirectSumFunctorial( x :: AbstractMor... ) = DirectSumFunctorial( collect( x ) )
 ⊕( a :: AbstractObj, b :: AbstractObj ) = DirectSum( a, b )
@@ -491,7 +495,8 @@ DirectSumFunctorial( x :: AbstractMor... ) = DirectSumFunctorial( collect( x ) )
 ⊕( a :: AbstractObj, b :: AbstractMor ) = Id(a) ⊕ b
 ⊕( a :: AbstractMor, b :: AbstractObj ) = a ⊕ Id(b)
 
-export Inverse, IsZero, Pullback, ProjectionInFactorOfPullback, UniversalMorphismIntoPullback, Hom, Id, Simplify
+export Inverse, IsZero, Pullback, ProjectionInFactorOfPullback, UniversalMorphismIntoPullback, Hom, Id, Simplify,
+       IsWellDefined
 
 Inverse = InverseImmutable
 Pullback = FiberProduct
@@ -510,3 +515,5 @@ Hom( a::AbstractObj, b::AbstractObj, c::AbstractMor ) = InterpretMorphismFromDis
 Hom( a::AbstractCat ) = DistinguishedObjectOfHomomorphismStructure( a )
 
 Simplify( a::AbstractObj ) = SimplifyObject( a, ∞ )
+IsWellDefined( a::AbstractObj ) = IsWellDefinedForObjects( a )
+IsWellDefined( a::AbstractMor ) = IsWellDefinedForMorphisms( a )

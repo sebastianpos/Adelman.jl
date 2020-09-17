@@ -16,7 +16,7 @@ using .CAP
 
 using .CAP.GAP: GapObj, julia_to_gap, gap_to_julia, @gap
 
-import Base: ∘, /, ==
+import Base: ∘, /, ==, +, -, *
 
 gap_fail = @gap fail
 gap_isbound( rec::GapObj, name::AbstractString ) = name in gap_to_julia( CAP.RecNames( rec ) )
@@ -38,12 +38,12 @@ global path_algebra
 function prepare_relations_str_for_eval( relations_str::AbstractString, ialg::AbstractString="path_algebra" )
     str = relations_str
     str = filter( x -> char_test( x ), str )
-    str = "," * str
-    ialg = ialg * "."
-    reg = r"(?<coeff>([\,\+\-])+(\d)*(\*)?)(?<path>[^(\d)\*\-\+])"
-    sstr = SubstitutionString( "\\g<coeff>$(ialg)\\g<path>" )
+    str == "0" && return "CAP.Zero( $(ialg) )"
+    str = "," * str * ","
+    reg = r"(?<coeff>([\,\+\-])+(\d)*(\*)?)(?<path>[^\*\-\+\,]+(?=[\,\+\-]))"
+    sstr = SubstitutionString( "\\g<coeff>Base.getproperty( $(ialg), \"\\g<path>\" )" )
     str = replace( str, reg => sstr )
-    str = str[2:end]
+    return str = str[2:end-1]
 end
 
 include("categories.jl")
