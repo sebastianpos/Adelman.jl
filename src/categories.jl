@@ -176,7 +176,8 @@ input_type_dict =
         "integer" => "Integer",
         "other_object" => "AbstractObj",
         "other_morphism" => "AbstractMor",
-        "any" => "Any"
+        "any" => "Any",
+        "cyclotomic" => "Any"
     )
 
 output_type_dict = 
@@ -238,7 +239,6 @@ opt_in_list = [
     :Coequalizer,
     :Coimage,
     :CoimageProjection,
-    :CokernelColift,
     :CokernelObject,
     :CokernelProjection,
     :Colift,
@@ -278,7 +278,7 @@ opt_in_list = [
     :InternalHomToTensorProductAdjunctionMap,
     :InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructure,
     :InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism,
-    :InverseImmutable,
+    :InverseForMorphisms,
     :IsAutomorphism,
     :IsColiftable,
     :IsColiftableAlongEpimorphism,
@@ -336,7 +336,6 @@ opt_in_list = [
     :IsomorphismFromZeroObjectToInitialObject,
     :IsomorphismFromZeroObjectToTerminalObject,
     :KernelEmbedding,
-    :KernelLift,
     :KernelObject,
     :LambdaElimination,
     :LambdaIntroduction,
@@ -429,9 +428,11 @@ function gap_to_julia_filter( elem )
     ( gap_isstring( elem ) || gap_isint( elem ) ) && return gap_to_julia( elem )
     ( elem == gap_isint ) && return "integer"
     ( elem == gap_isobject ) && return "any"
+    ( elem == gap_iscyclotomic ) && return "cyclotomic"
 end
 
 gap_to_julia_filter_list( flist ) = [ gap_to_julia_filter( flist[i] ) for i in 1:CAP.Length( flist ) ]
+
 
 l = length( opt_in_list )
 data = Array{ CAPBasicOperationMetaData }(undef, l )
@@ -446,6 +447,10 @@ for i in 1:l
         input_type = gap_to_julia_filter_list( method_rec_entry.filter_list )
     end
     
+    if method_rec_entry.install_convenience_without_category
+        input_type = input_type[2:end]
+    end
+
     output_type = gap_to_julia_filter( method_rec_entry.return_type )
     data[i] = CAPBasicOperationMetaData( opt_in_list[i], input_type, output_type )
 end
@@ -457,7 +462,11 @@ conv_with_given = [
     CAPBasicOperationMetaData( :KernelObjectFunctorial, [ "morphism", "morphism", "morphism" ], "morphism" ),
     CAPBasicOperationMetaData( :CokernelObjectFunctorial, [ "morphism", "morphism", "morphism" ], "morphism" ),
     CAPBasicOperationMetaData( :DirectSumFunctorial, [ "list_of_morphisms" ], "morphism" ),
-    CAPBasicOperationMetaData( :HomologyObjectFunctorial, [ "morphism", "morphism", "morphism", "morphism", "morphism" ], "morphism" )
+    CAPBasicOperationMetaData( :HomologyObjectFunctorial, [ "morphism", "morphism", "morphism", "morphism", "morphism" ], "morphism" ),
+
+
+    CAPBasicOperationMetaData( :CokernelColift, [ "morphism", "morphism" ], "morphism" ),
+    CAPBasicOperationMetaData( :KernelLift, [ "morphism", "morphism" ], "morphism" ),
 ]
 
 append!( data, conv_with_given ) 
@@ -498,7 +507,7 @@ DirectSumFunctorial( x :: AbstractMor... ) = DirectSumFunctorial( collect( x ) )
 export Inverse, IsZero, Pullback, ProjectionInFactorOfPullback, UniversalMorphismIntoPullback, Hom, Id, Simplify,
        IsWellDefined
 
-Inverse = InverseImmutable
+Inverse = InverseForMorphisms
 Pullback = FiberProduct
 ProjectionInFactorOfPullback = ProjectionInFactorOfFiberProduct
 UniversalMorphismIntoPullback = UniversalMorphismIntoFiberProduct

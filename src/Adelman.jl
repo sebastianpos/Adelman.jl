@@ -23,6 +23,7 @@ gap_isbound( rec::GapObj, name::AbstractString ) = name in gap_to_julia( CAP.Rec
 gap_isint = @gap IsInt
 gap_isstring = @gap IsString
 gap_isobject = @gap IsObject
+gap_iscyclotomic = @gap IsCyclotomic
 ∞ = @gap infinity
 
 GapObj( x :: Integer ) = x
