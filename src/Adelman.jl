@@ -8,7 +8,7 @@ module CAP
 export GAP
 
 using CapAndHomalg
-GAP.LoadPackageAndExposeGlobals( "FreydCategoriesForCAP", CAP, all_globals = true )
+CapAndHomalg.LoadPackageAndExposeGlobals( "FreydCategoriesForCAP", CAP )
 
 end # module CAP
 

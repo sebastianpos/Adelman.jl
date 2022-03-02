@@ -177,7 +177,10 @@ input_type_dict =
         "other_object" => "AbstractObj",
         "other_morphism" => "AbstractMor",
         "any" => "Any",
-        "cyclotomic" => "Any"
+        "cyclotomic" => "Any",
+        "nonneg_integer_or_infinity" => "Any",
+        "object_in_range_category_of_homomorphism_structure" => "AbstractObj",
+        "morphism_in_range_category_of_homomorphism_structure" => "AbstractMor",
     )
 
 output_type_dict = 
@@ -192,7 +195,10 @@ output_type_dict =
         "morphism_or_fail" => "mortype",
         "object_or_fail" => "objtype",
         "other_object" => "otherobjtype",
-        "other_morphism" => "othermortype"
+        "other_morphism" => "othermortype",
+        "object_in_range_category_of_homomorphism_structure" => "objtype",
+        "morphism_in_range_category_of_homomorphism_structure" => "moretype",
+        "nonneg_integer_or_infinity" => "identity"
     )
 
 function install_cap_basic_operation( data::CAPBasicOperationMetaData )
@@ -274,12 +280,14 @@ opt_in_list = [
     :InjectionOfFirstCofactorOfWeakBiPushout,
     :InjectionOfSecondCofactorOfWeakBiPushout,
     :InjectiveColift,
+    :InjectiveDimension,
     :InternalHomOnObjects,
     :InternalHomToTensorProductAdjunctionMap,
     :InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructure,
     :InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism,
     :InverseForMorphisms,
     :IsAutomorphism,
+    :IsBijectiveObject,
     :IsColiftable,
     :IsColiftableAlongEpimorphism,
     :IsCongruentForMorphisms,
@@ -359,6 +367,7 @@ opt_in_list = [
     :ProjectionOfBiasedWeakFiberProduct,
     :ProjectionOntoCoequalizer,
     :ProjectiveLift,
+    :ProjectiveDimension,
     :Pushout,
     :RankMorphism,
     :SimplifyEndo,
