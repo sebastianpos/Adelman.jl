@@ -9,13 +9,15 @@ export GAP
 
 using CapAndHomalg
 CapAndHomalg.LoadPackageAndExposeGlobals( "FreydCategoriesForCAP", CAP )
+CapAndHomalg.LoadPackageAndExposeGlobals( "Algebroids", CAP )
 
 end # module CAP
 
 using .CAP
 
-using .CAP.GAP: GapObj, julia_to_gap, gap_to_julia, @gap
+using .CAP.GAP: GapObj, gap_to_julia, @gap
 
+import .CAP.GAP: GapObj
 import Base: ∘, /, ==, +, -, *
 
 gap_fail = @gap fail
@@ -26,8 +28,8 @@ gap_isobject = @gap IsObject
 gap_iscyclotomic = @gap IsCyclotomic
 ∞ = @gap infinity
 
-GapObj( x :: Integer ) = x
-GapObj( x :: AbstractString ) = x
+
+julia_to_gap( x ) = GapObj( x )
 
 ## String manipulation for the relations
 char_test( x :: AbstractChar ) = !isspace(x) && !(x in ('[',']') )
